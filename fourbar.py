@@ -1,5 +1,6 @@
 import numpy as np
 from display import display
+import matplotlib.pyplot as plt
 
 class Joint():
     def __init__(self, x, y):
@@ -7,10 +8,9 @@ class Joint():
         self.y = y
 
 class Link():
-    def __init__(self, j1, j2, length):
-        ### Assumes CCW order with origin as first link
-        self.j1 = j1
-        self.j2 = j2
+    def __init__(self, js, je, length):
+        self.js = js
+        self.je = je
         self.length = length
 
 class Linkage():
@@ -25,14 +25,20 @@ l1 = 3
 l2 = 7.5
 l3 = 4.5
 
-### Fixed joints
+### Joints
 
 jo = Joint(0,0)
 jc = Joint(l0, 0)
 
+### Links
+link0 = Link(jo, jc, 7)
+link1 = Link(jo, None, 3)
+link2 = Link(None, None, 7.5)
+link3 = Link(None, jc, 4.5)
+
 ### Drive angle
 
-theta2 = 2 * np.pi / 2
+theta2 = np.pi / 10
 
 ### Calculating intermediate angles
 # Derivation of angles:
@@ -56,8 +62,19 @@ if theta2 > np.pi:
 
 ja = Joint(l1 * np.cos(theta2), l1 * np.cos(theta2))
 jb = Joint(jc.x + l3 * np.cos(theta4), l3 * np.sin(theta4))
-joints = [ja, jb, jo, jc]
-for j in joints:
-    print(j.x, j.y)
 
-display(1080, 1080, joints, save=False, show=True)
+### Completing links
+link1.je, link2.js = ja, ja
+link2.j3, link3.js = jb, jb
+
+joints = [jo, ja, jb, jc]
+
+plt.figure(figsize=(5,5))
+
+plt.plot([jo.x, ja.x], [jo.y, ja.y])
+plt.plot([ja.x, jb.x], [ja.y, jb.y])
+plt.plot([jb.x, jc.x], [jb.y, jc.y])
+plt.plot([jc.x, jo.x], [jc.y, jo.y])
+
+plt.show()
+
