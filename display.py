@@ -1,8 +1,5 @@
 from PIL import Image, ImageDraw
 
-
-
-
 def display(width, height, joints, **kwargs):
 
     padding = 20 # px
@@ -23,7 +20,7 @@ def display(width, height, joints, **kwargs):
     joint_radius = 15
 
     for joint in joints:
-        display_joint = (joint[0] * scale, height - joint[1] * scale)
+        display_joint = (joint.x * scale, height - joint.y * scale)
         print(display_joint)
         center_ellipse(*display_joint, joint_radius, 'red')
         
@@ -35,10 +32,11 @@ def display(width, height, joints, **kwargs):
 
 
 if __name__ == "__main__":
+    from fourbar import Joint
     joints = [
-        (10, 10),
-        (100, 10),
-        (90, 40),
-        (15, 20)
+        Joint(10, 10),
+        Joint(100, 10),
+        Joint(90, 40),
+        Joint(15, 20)
     ]
     display(1080, 1080, joints, save=True, show=False)

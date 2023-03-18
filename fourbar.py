@@ -1,7 +1,10 @@
-# Derivation of angle equations from:
-# https://www.youtube.com/watch?v=4O-XPJ7flLU
-
 import numpy as np
+from display import display
+
+class Joint():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 ### Link lengths
 
@@ -12,14 +15,16 @@ l3 = 4.5
 
 ### Fixed joints
 
-jo = (0,0)
-jc = (l0, 0)
+jo = Joint(0,0)
+jc = Joint(l0, 0)
 
 ### Drive angle
 
 theta2 = 100
 
 ### Calculating intermediate angles
+# Derivation of angles:
+# https://www.youtube.com/watch?v=4O-XPJ7flLU
 
 a_c = np.sqrt(l0**2 + l1**2 + 2 * l0 * l1 * np.cos(theta2))
 beta = np.arccos((l0 + a_c**2 - l1**2) / (2 * l0 * a_c))
@@ -37,6 +42,6 @@ elif theta2 > 180:
 
 ### Remaining joint positions
 
-ja = (l1 * np.cos(theta2), 0)
-jb = (jc[0] + l3 * np.cos(theta4), l3 * np.sin(theta4))
+ja = Joint(l1 * np.cos(theta2), 0)
+jb = Joint(jc.x + l3 * np.cos(theta4), l3 * np.sin(theta4))
 
