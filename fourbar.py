@@ -34,7 +34,7 @@ class Linkage():
 
     def validate(self):
 
-        if (self.l3 + self.l2) < (self.l1 + self.l0):
+        if (self.l3 + self.l2) <= (self.l1 + self.l0) or (self.l3 + self.l2) <= (self.l0 - self.l1):
             print("Incompatible link lengths.")
             print("\tl0", self.l0)
             print("\tl1", self.l1)
@@ -98,6 +98,30 @@ class Linkage():
 
         return self.jo, self.ja, self.jc, self.jb
 
+    def plot(self, theta, **kwargs):
+
+        self.calculate_positions(theta)
+
+        co1 = plt.Circle((self.jo.x, self.jo.y), self.l1,
+                        color='r', fill=False, linewidth=1, linestyle="dashed")
+        cc1 = plt.Circle((self.jc.x, self.jc.y), self.l3,
+                              color='r', fill=False, linewidth=1, linestyle="dashed")
+             
+        plt.figure(figsize=(8, 8))
+        ax = plt.axes(xlim=(-8, 12), ylim=(-8, 12))
+
+        ax.add_patch(co1)
+        ax.add_patch(cc1)
+        x = [self.jo.x, self.ja.x, self.jb.x, self.jc.x, self.jo.x]
+        y = [self.jo.y, self.ja.y, self.jb.y, self.jc.y, self.jo.y]
+        plt.plot(x, y, linewidth=2)
+        plt.scatter(x,y)
+
+        if kwargs.get("save"):
+            plt.savefig("fourbar.jpg", dpi=300)
+        if kwargs.get("show"):
+            plt.show()
+
     def animate(self):
 
         co1 = plt.Circle((self.jo.x, self.jo.y), self.l1,
@@ -149,5 +173,6 @@ if __name__ == "__main__":
 
     fourbar = Linkage(jo, jc, l_1, l_2, l_3)
 
-    fourbar.animate()
+    # fourbar.animate()
+    fourbar.plot(.1, save=True)
  
