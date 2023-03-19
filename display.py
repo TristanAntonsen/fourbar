@@ -1,28 +1,36 @@
+import numpy as np
 from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 def display(width, height, joints, **kwargs):
 
     padding = 20 # px
-    scale = 10 # global scale
-
+    scale = 25 # global scale
+    origin = (width / 2, height / 2)
     background_color = (200, 200, 200)
 
     img = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(img)
 
     def center_ellipse(x,y,r,c):
+        ## flips y coordinate
+        x = x * scale
+        y = height - y * scale
         draw.ellipse([x - r, y - r, x + r, y + r],fill=c)
 
     draw.rectangle((padding, padding, width - padding, height - padding), background_color)
 
-    center_ellipse(padding,height - padding, 10, 'black')
+    center_ellipse(*origin, 10, 'black')
 
-    joint_radius = 15
+    joint_radius = 8
 
     for joint in joints:
-        display_joint = (joint.x * scale, height - joint.y * scale)
-        print(display_joint)
-        center_ellipse(*display_joint, joint_radius, 'red')
+        center_ellipse(
+            joint.x,
+            joint.y,
+            joint_radius, 
+            'red')
         
 
     if kwargs.get("save"):
@@ -32,11 +40,11 @@ def display(width, height, joints, **kwargs):
 
 
 if __name__ == "__main__":
-    from fourbar import Joint
+    from fourbar import Joint, calculate_positions
     joints = [
-        Joint(10, 10),
-        Joint(100, 10),
-        Joint(90, 40),
-        Joint(15, 20)
+        Joint(0, 0),
+        Joint(7, 0),
+        Joint(6, 4),
+        Joint(1, 3)
     ]
     display(1080, 1080, joints, save=True, show=False)
