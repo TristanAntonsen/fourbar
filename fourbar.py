@@ -29,7 +29,7 @@ class Linkage():
 
         if theta2 > np.pi * 2:
             theta2 = theta2 - np.pi * 2
-        ### Calculating intermediate angles
+        ### Calculating intermediate angles using law of cosines
         # Derivation of angles:
         # https://www.youtube.com/watch?v=4O-XPJ7flLU
 
@@ -81,12 +81,12 @@ def animate_linkage(linkage, interval):
 
 if __name__ == "__main__":
 
-    # jo = Joint(0,0)
-    # jc = Joint(l0, 0)
     l0 = 7
     l1 = 3
     l2 = 7.5
     l3 = 4.5
+    origin = Joint(1, 1)
+    anchor = Joint(l0, 0)
+    fourbar = Linkage(origin, anchor, l0, l1, l2, l3)
 
-    fourbar = Linkage(Joint(0, 0), Joint(l0, 0), l0, l1, l2, l3)
     animate_linkage(fourbar, 10)
