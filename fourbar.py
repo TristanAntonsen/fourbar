@@ -1,6 +1,7 @@
 import numpy as np
-from display import display
+# from display import display
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 class Joint():
     def __init__(self, x, y):
@@ -14,67 +15,78 @@ class Link():
         self.length = length
 
 class Linkage():
-    def __init__(self, joints, links):
-        self.joints = joints
-        self.links = links
+    def __init__(self, jo, jc, l0, l1, l2, l3):
+        self.jo = jo
+        self.ja = Joint(None, None)
+        self.jc = jc
+        self.jb = Joint(None, None)
+        self.l0 = l0
+        self.l1 = l1
+        self.l2 = l2
+        self.l3 = l3
 
-### Link lengths
+    def calculate_positions(self, theta2):
 
-l0 = 7
-l1 = 3
-l2 = 7.5
-l3 = 4.5
+        if theta2 > np.pi * 2:
+            theta2 = theta2 - np.pi * 2
+        ### Calculating intermediate angles
+        # Derivation of angles:
+        # https://www.youtube.com/watch?v=4O-XPJ7flLU
 
-### Joints
+        a_c = np.sqrt(self.l0 ** 2 + self.l1 ** 2 - 2 * self.l0 * self.l1 * np.cos(theta2))
+        beta = np.arccos((self.l0 ** 2 + a_c ** 2 - self.l1 ** 2) / (2 * self.l0 * a_c))
+        psi = np.arccos((self.l2 ** 2 + a_c ** 2 - self.l3 ** 2) / (2 * self.l2 * a_c))
+        lmda = np.arccos((self.l3 ** 2 + a_c ** 2 - self.l2 ** 2) / (2 * self.l3 * a_c))
 
-jo = Joint(0,0)
-jc = Joint(l0, 0)
+        ### Calculating main angles
 
-### Links
-link0 = Link(jo, jc, 7)
-link1 = Link(jo, None, 3)
-link2 = Link(None, None, 7.5)
-link3 = Link(None, jc, 4.5)
+        theta3 = psi - beta
+        # theta4 = np.pi - lmda - beta
 
-### Drive angle
+        if theta2 > np.pi:
+            theta3 = psi + beta
+            theta4 = np.pi - lmda + beta
 
-theta2 = np.pi / 10
+        ### Joints
+        self.ja.x = self.l1 * np.cos(theta2)
+        self.ja.y = self.l1 * np.sin(theta2)
 
-### Calculating intermediate angles
-# Derivation of angles:
-# https://www.youtube.com/watch?v=4O-XPJ7flLU
+        self.jb.x = self.jo.x + self.ja.x + self.l2 * np.cos(theta3)
+        self.jb.y = self.jo.y + self.ja.y + self.l2 * np.sin(theta3)
 
-a_c = np.sqrt(l0**2 + l1**2 + 2 * l0 * l1 * np.cos(theta2))
-beta = np.arccos((l0 + a_c**2 - l1**2) / (2 * l0 * a_c))
-psi = np.arccos((l2 ** 2 + a_c ** 2 - l3 ** 2) / (2 * l2 * a_c))
-lmda = np.arccos((l3 ** 2 + a_c ** 2 - l2 ** 2) / (2 * l3 * a_c))
 
-### Calculating main angles
+def animate_linkage(linkage, interval):
 
-theta3 = psi - beta
-theta4 = np.pi - lmda - beta
+    fig = plt.figure()
+    ax = plt.axes(xlim=(-5, 10), ylim=(-5, 10))
+    line, = ax.plot([], [], lw=3)
 
-if theta2 > np.pi:
-    theta3 = psi + beta
-    theta4 = np.pi - lmda + beta
+    frames = 360
 
-### Remaining joint positions
+    def init():
+        line.set_data([], [])
+        return line,
+    def animate(i):
+        theta = i * np.pi / 180
+        linkage.calculate_positions(theta)
+        x = [linkage.jo.x, linkage.ja.x, linkage.jb.x, linkage.jc.x, linkage.jo.x]
+        y = [linkage.jo.y, linkage.ja.y, linkage.jb.y, linkage.jc.y, linkage.jo.y]
+        line.set_data(x, y)
+        return line,
 
-ja = Joint(l1 * np.cos(theta2), l1 * np.cos(theta2))
-jb = Joint(jc.x + l3 * np.cos(theta4), l3 * np.sin(theta4))
+    anim = FuncAnimation(fig, animate, init_func=init,
+                                frames=frames, interval=interval, blit=True)
 
-### Completing links
-link1.je, link2.js = ja, ja
-link2.j3, link3.js = jb, jb
+    plt.show()
 
-joints = [jo, ja, jb, jc]
+if __name__ == "__main__":
 
-plt.figure(figsize=(5,5))
+    # jo = Joint(0,0)
+    # jc = Joint(l0, 0)
+    l0 = 7
+    l1 = 3
+    l2 = 7.5
+    l3 = 4.5
 
-plt.plot([jo.x, ja.x], [jo.y, ja.y])
-plt.plot([ja.x, jb.x], [ja.y, jb.y])
-plt.plot([jb.x, jc.x], [jb.y, jc.y])
-plt.plot([jc.x, jo.x], [jc.y, jo.y])
-
-plt.show()
-
+    fourbar = Linkage(Joint(0, 0), Joint(l0, 0), l0, l1, l2, l3)
+    animate_linkage(fourbar, 10)
