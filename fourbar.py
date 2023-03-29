@@ -173,6 +173,6 @@ if __name__ == "__main__":
 
     fourbar = Linkage(jo, jc, l_1, l_2, l_3)
 
-    # fourbar.animate()
+    fourbar.animate()
     fourbar.plot(.1, save=True)
  
